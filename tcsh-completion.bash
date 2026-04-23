@@ -181,9 +181,12 @@ if [ ${#COMPREPLY[*]} -eq 0 ]; then
 		TO_COMPLETE="${COMP_WORDS[${COMP_CWORD}]}"
 
 		# We don't support ~ expansion: too tricky.
+		# XXX Actually, ~ expansion works with ${~TO_COMPLETE} syntax.
+		# XXX But for some reason, tcsh discards the completions :,(
 		if [ "${TO_COMPLETE:0:1}" != "~" ]; then
 			# Use ls so as to add the '/' at the end of directories.
 			COMPREPLY=(`ls -dp ${TO_COMPLETE}* 2> /dev/null`)
+#			COMPREPLY=(`ls -dp ${~TO_COMPLETE}* 2> /dev/null`)
 		fi
 	fi
 fi
