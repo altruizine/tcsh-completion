@@ -41,6 +41,7 @@ fi
 
 extra_scripts="${root_path}/extra-scripts.txt"
 completion_file="${HOME}/.tcsh-completion.tcsh"
+completion_file_user="${HOME}/.tcsh-completion.user.tcsh"
 
 # Check that tcsh is modern enough for completion.  We need version 6.16 or higher.
 tcsh_version=(`tcsh --version | awk '{print $2}' | \sed 's/\./ /g'`)
@@ -136,6 +137,9 @@ for script_path in `cat "${extra_scripts}" | \egrep -ve '^#|^\s*$' `; do
 
   _generate_tcsh_complete_command "${script_path}" >> "${completion_file}"
 done
+
+# Allow user overrides in a separate snippet
+echo "test -e '$completion_file_user' && source '$completion_file_user'" >> "${completion_file}"
 
 # Add an alias to allow the user to easily refresh the completion script.
 # This alias will be used when the user installs a new tool and wants to
