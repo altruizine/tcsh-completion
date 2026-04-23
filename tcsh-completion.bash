@@ -116,6 +116,41 @@ compgen () {
     fi
 }
 
+# uniq_norm: collapse duplicates in a Bash array.
+#   * "foo" and "foo/" are treated as the same key.
+#   * If both appear, the element **with** the trailing slash is kept.
+#   * Order of the result is irrelevant - the function returns the values of
+#     the associative array, which are unique by definition.
+# Usage: uniq_norm input_array[@] output_array
+uniq_norm() {
+    local -n src=$1   # source array (by name)
+    local -n dst=$2   # destination array (by name)
+
+    declare -A uniq   # key -> stored value (always the slash version if present)
+
+    for elem in "${src[@]}"
+    do
+        # Canonical key: strip a single trailing slash, if any.
+        local key="${elem%/}"
+
+        # If the key is unseen, store the element.
+        if [[ -z ${uniq[$key]+_} ]]
+	then
+            uniq[$key]="$elem"
+        else
+            # Key already present -> keep the slash version if the current element
+            # ends with '/' and the stored one does not.
+            if [[ "$elem" == */ && "${uniq[$key]}" != */ ]]
+	    then
+                uniq[$key]="$elem"
+            fi
+        fi
+    done
+
+    # Return the unique values (order is arbitrary).
+    dst=("${uniq[@]}")
+}
+
 # Call the completion command in the real bash script
 ${completionFunction}
 
@@ -162,10 +197,11 @@ if [ "${debug}" == "true" ]; then
 fi
 
 # tcsh does not automatically remove duplicates, so we do it ourselves
-echo "${COMPREPLY[*]}" | sort | uniq
+uniq_norm COMPREPLY uniqed
+echo "${uniqed[*]}"
 
 # If there is a single completion and it is a directory, we output it
 # a second time to trick tcsh into not adding a space after it.
-if [ ${#COMPREPLY[*]} -eq 1 ] && [ "${COMPREPLY[0]: -1}" == "/" ]; then
-	echo "${COMPREPLY[*]}"
+if [ ${#uniqed[*]} -eq 1 ] && [ "${uniqed[0]: -1}" == "/" ]; then
+    echo "${uniqed[*]}"
 fi
