@@ -90,6 +90,11 @@ else
 	COMP_CWORD=$((${#COMP_WORDS[@]}-1))
 fi
 
+# Wrap compopt builtin to make it work outside of completion function.
+compopt () {
+    builtin compopt "$@" ${COMP_WORDS[0]}
+}
+
 # Call the completion command in the real bash script
 ${completionFunction}
 
