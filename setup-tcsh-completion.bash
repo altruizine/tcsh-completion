@@ -86,7 +86,7 @@ _generate_tcsh_complete_command ()
     commandName=${completionCommand##* }
     # Check if this command is one that can be sped up
     speedUp="-s"
-    if [[ `grep ${commandName} ./speed.txt` != "" ]]; then
+    if [[ `grep ${commandName} ${root_path}/speed.txt` != "" ]]; then
       speedUp="-S"
     fi
 
