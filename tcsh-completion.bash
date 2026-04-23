@@ -116,7 +116,7 @@ if [ ${#COMPREPLY[*]} -eq 0 ]; then
     # WARNING: This seems like a good idea for the commands I have been
     #          using, however, I may have not noticed issues with other
     #          commands.
-	if [ ${COMP_CWORD} -gt 1 ]; then
+	if [ ${COMP_CWORD} -gt 0 ]; then
 		TO_COMPLETE="${COMP_WORDS[${COMP_CWORD}]}"
 
 		# We don't support ~ expansion: too tricky.
