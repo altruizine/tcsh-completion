@@ -198,10 +198,27 @@ fi
 
 # tcsh does not automatically remove duplicates, so we do it ourselves
 uniq_norm COMPREPLY uniqed
-echo "${uniqed[*]}"
+
+# Prepend word prefix if not already there, or tcsh will discard the completion.
+prefix=${COMP_WORDS[$COMP_CWORD]}
+
+# Identify prefix characters that are not repeated in the completions
+if [ ${#uniqed[*]} -gt 0 ]
+then
+    p1="" p2=$prefix c=${uniqed[0]}
+    while [[ "$p2" && "$c" == "${c#$p2}" ]] # p2 doesn't match beginning of c
+    do
+	p1="${p1}${p2:0:1}"
+	p2=${p2:1}
+    done
+    prefix="$p1"
+fi
+
+shopt -qs extglob
+echo "${uniqed[*]/#?($prefix)/$prefix}"
 
 # If there is a single completion and it is a directory, we output it
 # a second time to trick tcsh into not adding a space after it.
 if [ ${#uniqed[*]} -eq 1 ] && [ "${uniqed[0]: -1}" == "/" ]; then
-    echo "${uniqed[*]}"
+    echo "${uniqed[*]/#?($prefix)/$prefix}"
 fi
