@@ -95,6 +95,27 @@ compopt () {
     builtin compopt "$@" ${COMP_WORDS[0]}
 }
 
+# Wrap compgen builtin to attach "/" to directories
+compgen () {
+    if [[ ( "$*" == *'-'[f]* || "$*" == *'-A'*file* ) ]] \
+	   || ( ( complete -p ${COMP_WORDS[0]} | grep -q filenames ) \
+		    && [[ ( "$*" == *'-'[d]* || "$*" == *'-A'*directory* ) ]] )
+    then
+	local name
+	builtin compgen "$@" | while read name
+	do
+	    if [[ -d "$name" ]]
+	    then
+		echo "$name/"
+	    else
+		echo "$name"
+	    fi
+	done
+    else
+	builtin compgen "$@"
+    fi
+}
+
 # Call the completion command in the real bash script
 ${completionFunction}
 
